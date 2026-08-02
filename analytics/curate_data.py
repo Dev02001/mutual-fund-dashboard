@@ -1,4 +1,3 @@
-from pprint import pprint
 from analytics.get_data import get_fund_details
 from decimal import Decimal, ROUND_HALF_UP
 
