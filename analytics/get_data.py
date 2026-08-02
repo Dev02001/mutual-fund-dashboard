@@ -1,0 +1,61 @@
+from ETL.load_mysql import (get_connected, connection_close)
+from pprint import pprint
+
+
+class Queries:
+    fund_detail = '''Select fund_name, sum(invest_amount), sum(bought_units),avg(invest_nav) from investment_transaction where 
+    fund_name = %s '''
+    invest_date = '''select buy_date from investment_transaction where fund_name = %s '''
+
+    # Following query retrieves the latest NAV value from the nav_history table
+    nav_value_query = '''SELECT nav_value, nav_date FROM nav_history ORDER BY nav_date DESC limit 1'''
+
+
+class DbConnection:
+    def __init__(self):
+        self.connection, self.cursor = get_connected()
+    def close(self):
+        connection_close(self.connection,self.cursor)
+
+
+query = Queries()
+
+def get_fund_details(name):
+    database_connection = DbConnection()
+    try:
+        investment = get_investment_detail(name,database_connection.cursor)
+        fund_nav = latest_nav_value(database_connection.cursor)
+        investment_details = (*investment,*fund_nav)
+        keys = ["fund_name", "invest_amount", "units_bought", "buying_nav", "buying_date", "latest_nav", "latest_nav_date"]
+        investment_details = dict(zip(keys,investment_details))
+        return investment_details
+    finally:
+        database_connection.close()
+
+def get_investment_detail(name, db_cursor):
+    n = (name,)
+    db_cursor.execute(query.fund_detail, n)
+    detail = db_cursor.fetchone()
+    db_cursor.execute(query.invest_date,n)
+    invest_date = db_cursor.fetchone()
+    Fund_data = (*detail,*invest_date)
+    if Fund_data is not None:
+        return Fund_data
+    else:
+        return None
+
+# Following Functions Returns the Latest NAV
+
+
+def latest_nav_value(db_cursor):
+    db_cursor.execute(query.nav_value_query)
+    value = db_cursor.fetchone()
+    if value:
+        nav_value, nav_date = value
+        return nav_value, nav_date
+    else:
+        print("Data was not retrieved")
+        return None
+
+
+#pprint(get_fund_details("ICICI Prudential Dividend Yield Equity Mutual Fund Direct Growth"), indent=4)
