@@ -1,8 +1,10 @@
 import streamlit as st
-from analytics.curate_data import portfolio_summary
+#from analytics.curate_data import portfolio_summary
+from analytics.demo_data import portfolio_summary_demo
 
 
-portfolio = portfolio_summary("ICICI Prudential Dividend Yield Equity Mutual Fund Direct Growth")
+#portfolio = portfolio_summary("ICICI Prudential Dividend Yield Equity Mutual Fund Direct Growth")
+portfolio = portfolio_summary_demo()
 st.title("Mutual Fund Dashboard")
 st.subheader(portfolio["Name"])
 
