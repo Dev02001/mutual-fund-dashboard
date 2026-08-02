@@ -1,6 +1,6 @@
 DB_CONFIG = {
     "host": "localhost",
     "user": "root",
-    "password": "deva02",
+    "password": "",
     "database": "mutual_fund_dashboard"
 }
