@@ -1,3 +1,5 @@
+from pprint import pprint
+
 from analytics.get_data import get_fund_details
 from decimal import Decimal, ROUND_HALF_UP
 
@@ -57,6 +59,6 @@ def cagr(market_value, invest_value, buy_date, current_date):
     return CAGR
 
 
-#fund = portfolio_summary("ICICI Prudential Dividend Yield Equity Mutual Fund Direct Growth")
-#pprint(fund, indent=4)
+fund = portfolio_summary("ICICI Prudential Dividend Yield Equity Mutual Fund Direct Growth")
+pprint(fund, indent=4)
 #print(fund['latest_value'])
