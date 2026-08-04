@@ -9,12 +9,10 @@ if str(PROJECT_ROOT) not in sys.path:
 
 
 import streamlit as st
-#from analytics.curate_data import portfolio_summary
-from analytics.demo_data import portfolio_summary_demo
+from analytics.curate_data import portfolio_summary
 
 
-#portfolio = portfolio_summary("ICICI Prudential Dividend Yield Equity Mutual Fund Direct Growth")
-portfolio = portfolio_summary_demo()
+portfolio = portfolio_summary("ICICI Prudential Dividend Yield Equity Mutual Fund Direct Growth")
 st.title("Mutual Fund Dashboard")
 st.subheader(portfolio["Name"])
 

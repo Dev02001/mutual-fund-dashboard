@@ -1,7 +1,6 @@
 import mysql.connector
 from config.db_config import DB_CONFIG
 
-
 connection = None
 cursor = None
 
@@ -56,10 +55,10 @@ def verify_nav_exist(nav_date,cursor):
     cursor.execute(check_nav_exist,(nav_date,))
     nav_exist = cursor.fetchone()
     if nav_exist is None:
-        print(f"{nav_date} does not exist")
+        #print(f"{nav_date} does not exist")
         return False
     else:
-        print(f"Nav for {nav_date} Exist")
+        #print(f"Nav for {nav_date} Exist")
         return True
 
 nav_insert_query = '''INSERT INTO nav_history (

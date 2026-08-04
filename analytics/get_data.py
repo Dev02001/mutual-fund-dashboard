@@ -1,5 +1,4 @@
 from ETL.load_mysql import (get_connected, connection_close)
-from pprint import pprint
 
 
 class Queries:
@@ -57,5 +56,3 @@ def latest_nav_value(db_cursor):
         print("Data was not retrieved")
         return None
 
-
-#pprint(get_fund_details("ICICI Prudential Dividend Yield Equity Mutual Fund Direct Growth"), indent=4)

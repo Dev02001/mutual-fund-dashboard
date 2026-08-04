@@ -12,13 +12,3 @@ def validate_nav_data(latest_nav, nav_date):
     validated_nav_date = datetime.strptime(nav_date, "%m/%d/%Y").date()
 
     return validated_nav, validated_nav_date
-
-
-
-    '''Assign a variable nav_date = data[1]
-    assign a variable latest_nav = data[0]
-    #validate if latest_nav data type is decimal if no convert to decimal
-    after conversion update latest_nav = converted latest_nav
-    Now convert nav_date from str to date and format it as dd-mm-yyyy update nav_date = converted and formatted nav_date
-    Now validate if latest_nav for nav_nav date exist? if yes return true and if no return false
-   '''

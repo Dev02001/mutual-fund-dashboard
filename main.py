@@ -5,7 +5,7 @@ from ETL.validator import validate_nav_data
 from ETL.load_mysql import insert_latest_nav
 import json
 
-#Extract all the funds from the icic website
+#Extract all the funds from the icici website
 data = fetch_funds_data()
 
 #extract only ICICI dividened fund
