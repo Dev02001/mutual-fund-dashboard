@@ -3,7 +3,7 @@ from ETL.scraper import get_fund_by_scheme_code
 from ETL.scraper import get_latest_nav
 from ETL.validator import validate_nav_data
 from ETL.load_mysql import insert_latest_nav
-import json
+
 
 #Extract all the funds from the icici website
 data = fetch_funds_data()
