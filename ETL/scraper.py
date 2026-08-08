@@ -31,7 +31,7 @@ def fetch_funds_data():
         headers=headers
     )
     # response.raise_for_status()
-    print(response.status_code)
+    #print(response.status_code)
     #print(response.text)
     data = response.json()
 

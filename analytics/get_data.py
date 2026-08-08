@@ -1,3 +1,5 @@
+import pandas as pd
+
 from ETL.load_mysql import (get_connected, connection_close)
 
 
@@ -8,6 +10,9 @@ class Queries:
 
     # Following query retrieves the latest NAV value from the nav_history table
     nav_value_query = '''SELECT nav_value, nav_date FROM nav_history ORDER BY nav_date DESC limit 1'''
+
+    #Following query reteieves nav history
+    nav_history_query = '''select nav_date, nav_value from nav_history order by nav_date'''
 
 
 class DbConnection:
@@ -55,4 +60,16 @@ def latest_nav_value(db_cursor):
     else:
         print("Data was not retrieved")
         return None
+
+#Following function returns entire table containing nav history
+def get_nav_history(cursor):
+    cursor.execute(query.nav_history_query)
+    return cursor.fetchall()
+
+def nav_history():
+    connection = DbConnection()
+    try:
+        return get_nav_history(connection.cursor)
+    finally:
+        connection.close()
 
