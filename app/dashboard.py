@@ -11,7 +11,7 @@ if str(PROJECT_ROOT) not in sys.path:
 import streamlit as st
 from analytics.curate_data import portfolio_summary
 import pandas as pd
-from analytics.get_data import nav_history
+#from analytics.get_data import nav_history
 
 
 portfolio = portfolio_summary("ICICI Prudential Dividend Yield Equity Mutual Fund Direct Growth")
@@ -60,22 +60,21 @@ with latestNAVDate:
         value=f"{portfolio['Latest_NAV_date']}"
     )
 
-history = nav_history()
+'''history = nav_history()
 df = pd.DataFrame(
     history,
     columns=["Date", "NAV"]
 )
 df["NAV"] = df["NAV"].astype(float)
 
-charts = st.container
-plot = st.line_chart(
+charts = st.container()
+with charts:
+    st.subheader("NAV Trend")
+    plot = st.line_chart(
     df,
     x="Date",
     y="NAV",
     x_label = "Date",
     y_label="NAV"
-)
-plot_title = st.subheader("NAV Trend")
+    )'''
 
-charts.plot_title
-charts.plot
