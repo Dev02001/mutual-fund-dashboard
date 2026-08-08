@@ -8,20 +8,22 @@ if str(PROJECT_ROOT) not in sys.path:
 '''----------------------------------------------------------------------------------'''
 
 import streamlit as st
-from analytics.curate_data import portfolio_summary
+from analytics.curate_data import portfolio_summary, portfolio_value_history
 from analytics.get_data import nav_history
 import pandas as pd
 import altair as alt
 
+# --------------------Reusable Function section---------------------------------
+def money(value):
+    return f"₹{value:,.2f}"
+
+# --------------------------------KPI Section start-------------------------------
 portfolio = portfolio_summary("ICICI Prudential Dividend Yield Equity Mutual Fund Direct Growth")
 st.title("Mutual Fund Dashboard")
 st.subheader(portfolio["Name"])
 
+# --------------------------------KPI Section Row 1-------------------------------------------------
 invest_column, current_column = st.columns(2)
-
-
-def money(value):
-    return f"₹{value:,.2f}"
 
 
 with invest_column:
@@ -31,10 +33,10 @@ with invest_column:
     )
 with current_column:
     st.metric(
-        label="Curent Market Value",
+        label="Current Market Value",
         value=money(portfolio['latest_value'])
     )
-
+# --------------------------------KPI Section Row 2-------------------------------------------------
 profitLossColumn, absoluteReturn = st.columns(2)
 
 with profitLossColumn:
@@ -48,6 +50,7 @@ with absoluteReturn:
         value=f"{portfolio['Absolute Return']}"
     )
 
+# --------------------------------KPI Section Row 3-------------------------------------------------
 latestNAV, latestNAVDate = st.columns(2)
 
 with latestNAV:
@@ -60,25 +63,27 @@ with latestNAVDate:
         label="NAV as of:",
         value=f"{portfolio['Latest_NAV_date']}"
     )
-# --------------------------------Line Chart Creation-------------------------------------------
-history = nav_history()
-df = pd.DataFrame(
-    history,
+
+
+# --------------------------------Line Chart Creation for nav history-------------------------------------------
+history_of_nav = nav_history()
+nav_table = pd.DataFrame(
+    history_of_nav,
     columns=["Date", "NAV"]
 )
-df["NAV"] = df["NAV"].astype(float)
-min_nav = float(df["NAV"].min()) - 10
-max_nav = float(df["NAV"].max()) + 10
+nav_table["NAV"] = nav_table["NAV"].astype(float)
+min_nav = float(nav_table["NAV"].min()) - 10
+max_nav = float(nav_table["NAV"].max()) + 10
 
 Plot = (
-    alt.Chart(df)
+    alt.Chart(nav_table)
     .mark_line()
     .encode(
         x="Date:T",
-        y = alt.Y(
+        y=alt.Y(
             "NAV:Q",
             scale=alt.Scale(
-                domain=[min_nav,max_nav]
+                domain=[min_nav, max_nav]
             )
         )
     )
@@ -87,4 +92,31 @@ Plot = (
 charts = st.container()
 with charts:
     st.subheader("NAV Trend")
-    st.altair_chart(Plot,use_container_width=True)
+    st.altair_chart(Plot, use_container_width=True)
+
+# ----------------------------------------Portfolio value over-time Line-chart-----------------------------------
+amount_overtime = portfolio_value_history(portfolio["Units_bought"])
+
+min_nav = float(amount_overtime["Amount"].min()) - 10000
+max_nav = float(amount_overtime["Amount"].max()) + 10000
+
+Plot = (
+    alt.Chart(amount_overtime)
+    .mark_line()
+    .encode(
+        x="Date:T",
+        y=alt.Y(
+            "Amount:Q",
+            scale=alt.Scale(
+                domain=[min_nav, max_nav]
+            )
+        )
+    )
+)
+
+Portfolio_amount_chart = st.container()
+with Portfolio_amount_chart:
+    st.subheader("Amount Trend")
+    st.altair_chart(Plot, use_container_width=True)
+
+# ---------------------------------------------------------------------------------
