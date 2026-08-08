@@ -61,7 +61,7 @@ with latestNAVDate:
         value=f"{portfolio['Latest_NAV_date']}"
     )
 
-'''history = nav_history()
+history = nav_history()
 df = pd.DataFrame(
     history,
     columns=["Date", "NAV"]
@@ -77,5 +77,5 @@ with charts:
     y="NAV",
     x_label = "Date",
     y_label="NAV"
-    )'''
+    )
 
