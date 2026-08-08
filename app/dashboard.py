@@ -10,8 +10,9 @@ if str(PROJECT_ROOT) not in sys.path:
 
 import streamlit as st
 from analytics.curate_data import portfolio_summary
+from analytics.get_data import nav_history
 import pandas as pd
-#from analytics.get_data import nav_history
+
 
 
 portfolio = portfolio_summary("ICICI Prudential Dividend Yield Equity Mutual Fund Direct Growth")
