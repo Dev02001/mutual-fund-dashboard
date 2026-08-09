@@ -1,3 +1,4 @@
+import numpy as np
 import pandas as pd
 from analytics.get_data import get_fund_details, nav_history
 from decimal import Decimal, ROUND_HALF_UP
@@ -72,3 +73,56 @@ def portfolio_value_history(units):
     )
     value_over_time["Amount"] = value_over_time["Amount"].astype(float)
     return value_over_time
+
+def daily_nav_return():
+    nav_return = []
+    nav_data = nav_history()
+    nav_df = pd.DataFrame(
+        nav_data,
+        columns=["Date", "NAV"]
+    )
+    nav_df["Date"] = pd.to_datetime(nav_df["Date"])
+    for i in range(1, len(nav_df)):
+
+        date_gap = (
+            nav_df["Date"].iloc[i]
+            - nav_df["Date"].iloc[i - 1]
+        ).days
+
+        if date_gap <= 4:
+
+            daily_return = float(
+                (
+                    nav_df["NAV"].iloc[i]
+                    - nav_df["NAV"].iloc[i - 1]
+                )
+                / nav_df["NAV"].iloc[i - 1]
+            )
+
+            nav_return.append(
+                (nav_df["Date"].iloc[i], daily_return)
+            )
+
+    daily_return_df = pd.DataFrame(
+        nav_return,
+        columns=["Date", "Daily_Return"]
+    )
+
+    return daily_return_df
+
+def standard_deviation():
+    daily_return = daily_nav_return()
+    return daily_return["Daily_Return"].std()
+def annualised_std():
+    std = standard_deviation()
+    annualised = std * np.sqrt(252)
+    return annualised
+
+def days ():
+    no_day = daily_nav_return()
+    day_count = no_day.shape[0]
+    return day_count
+
+
+
+

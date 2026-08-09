@@ -9,7 +9,7 @@ if str(PROJECT_ROOT) not in sys.path:
 '''----------------------------------------------------------------------------------'''
 
 import streamlit as st
-from analytics.curate_data import portfolio_summary, portfolio_value_history
+from analytics.curate_data import portfolio_summary, portfolio_value_history, days, annualised_std
 from analytics.get_data import nav_history
 import pandas as pd
 import altair as alt
@@ -27,7 +27,7 @@ st.subheader(portfolio["Name"])
 
 # ------------------------------Tab Creations-------------------------------------
 
-KPI_tab, Trend_tab = st.tabs(["KPI","Trend"])
+KPI_tab, Trend_tab, Risk_ratio_tab = st.tabs(["KPI","Trend", "Risk Ratios"])
 
 # --------------------------------KPI Section Row 1-------------------------------------------------
 with KPI_tab:
@@ -140,4 +140,18 @@ with Trend_tab:
         st.subheader("Amount Trend")
         st.altair_chart(Plot, use_container_width=True)
 
-# ---------------------------------------------------------------------------------
+# ----------------------------------------------Risk Ratio section-----------------------------------
+with Risk_ratio_tab:
+    st.subheader(f"Risk metrics based on {days()} daily return observations")
+    ratio = st.container(border=True)
+    with ratio:
+        standard_deviation, beta = st.columns(2)
+        with standard_deviation:
+            std = annualised_std()
+            st.metric(
+                label="Annualised Volatility",
+                value= f"{std:.2%}",
+                delta_description= f"Volatility based on {days()} daily return observations"
+            )
+        with beta:
+            st.write("Beta Will be displayed here.")
