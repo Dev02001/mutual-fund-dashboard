@@ -47,7 +47,7 @@ def disconnect(connection, cursor):
 
 # -----------------------------Execution Part---------------------------
 
-index_data = pd.read_csv("../Data_sets/NIFTY 50.csv")
+index_data = pd.read_csv("../Data_sets/NIFTY_50_June_to_Feb.csv")
 
 
 def table_creation():
@@ -87,3 +87,4 @@ def insert_data(data):
 
 #print(table_creation())
 print(insert_data(index_data))
+#print(len(index_data))
