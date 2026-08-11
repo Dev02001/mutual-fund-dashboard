@@ -44,3 +44,12 @@ CREATE TABLE nav_history (
 ) ENGINE=InnoDB
 DEFAULT CHARSET=utf8mb4
 COLLATE=utf8mb4_0900_ai_ci;
+
+DROP Table if EXISTS index_history;
+
+create table index_history (
+        index_date Date primary key NOT NULL,
+        index_value decimal(10,4),
+        scrape_timestamp timestamp,
+        create_at timestamp
+    )
