@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-from analytics.get_data import get_fund_details, nav_history
+from analytics.get_data import get_fund_details, nav_history, get_index_history
 from decimal import Decimal, ROUND_HALF_UP
 
 
@@ -45,9 +45,9 @@ def profit_loss(current_value, total_invested):
 
 
 def absolute_return(market_value, invest_value):
-    absolute_return = (market_value - invest_value) / invest_value
-    absolute_return = f"{absolute_return:.2%}"
-    return absolute_return
+    Absolute_return = (market_value - invest_value) / invest_value
+    Absolute_return = f"{Absolute_return:.2%}"
+    return Absolute_return
 
 
 def xirr():
@@ -74,6 +74,8 @@ def portfolio_value_history(units):
     value_over_time["Amount"] = value_over_time["Amount"].astype(float)
     return value_over_time
 
+
+# ----------------------------Daily NAV return and standard deviation calculation------------------------
 def daily_nav_return():
     nav_return = []
     nav_data = nav_history()
@@ -85,16 +87,15 @@ def daily_nav_return():
     for i in range(1, len(nav_df)):
 
         date_gap = (
-            nav_df["Date"].iloc[i]
-            - nav_df["Date"].iloc[i - 1]
+                nav_df["Date"].iloc[i]
+                - nav_df["Date"].iloc[i - 1]
         ).days
 
         if date_gap <= 4:
-
             daily_return = float(
                 (
-                    nav_df["NAV"].iloc[i]
-                    - nav_df["NAV"].iloc[i - 1]
+                        nav_df["NAV"].iloc[i]
+                        - nav_df["NAV"].iloc[i - 1]
                 )
                 / nav_df["NAV"].iloc[i - 1]
             )
@@ -110,19 +111,72 @@ def daily_nav_return():
 
     return daily_return_df
 
+
 def standard_deviation():
     daily_return = daily_nav_return()
     return daily_return["Daily_Return"].std()
+
+
 def annualised_std():
     std = standard_deviation()
     annualised = std * np.sqrt(252)
     return annualised
 
-def days ():
+
+# ---------------------------Counting the number of days dashboard uses for metric calculation---------------------
+def days():
     no_day = daily_nav_return()
     day_count = no_day.shape[0]
     return day_count
 
 
+# ----------------------Daily Index return Calculation----------------------------------
+
+def daily_index_return():
+    index_history_df = pd.DataFrame(
+        get_index_history(),
+        columns=["Index_date", "Index_value"]
+    )
+    index_return = []
+
+    for i in range(1, len(index_history_df)):
+
+        date = index_history_df["Index_date"]
+        index_price = index_history_df["Index_value"]
+
+        date_gaps = (
+                date[i] - date[i - 1]
+        ).days
+
+        if date_gaps <= 4:
+            value_return = (index_price[i] - index_price[i - 1]) / index_price[i - 1]
+            index_return.append((date[i], float(value_return)))
+
+    index_return_df = pd.DataFrame(
+        index_return,
+        columns=["Date", "Index_value"]
+    )
+    index_return_df["Date"] = pd.to_datetime(index_return_df["Date"])
+    return index_return_df
 
 
+# ----------------------------------Combining the nav return and Index return--------------------------------
+
+def combine_return():
+    combined = pd.merge(
+        daily_index_return(),
+        daily_nav_return(),
+        on="Date",
+        how="inner"
+    )
+    combined = combined.rename(columns={"Index_value": "Benchmark_return", "Daily_Return": "Fund_return"})
+    return combined
+
+
+# ----------------------------Beta Calculation---------------------------------------
+def beta():
+    values = combine_return()
+    Beta = (
+            (values["Fund_return"].cov(values["Benchmark_return"])) / values["Benchmark_return"].var()
+    )
+    return float(Beta)

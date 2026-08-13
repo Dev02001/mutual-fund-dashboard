@@ -1,4 +1,4 @@
-import time
+
 from pathlib import Path
 import sys
 
@@ -9,25 +9,28 @@ if str(PROJECT_ROOT) not in sys.path:
 '''----------------------------------------------------------------------------------'''
 
 import streamlit as st
-from analytics.curate_data import portfolio_summary, portfolio_value_history, days, annualised_std
+from analytics.curate_data import portfolio_summary, portfolio_value_history, days, annualised_std, beta
 from analytics.get_data import nav_history
 import pandas as pd
 import altair as alt
 
 # --------------------Reusable Function section---------------------------------
 
+
 @st.cache_data
 def money(value):
     return f"₹{value:,.2f}"
 
 # --------------------------------KPI Section start-------------------------------
+
+
 portfolio = portfolio_summary("ICICI Prudential Dividend Yield Equity Mutual Fund Direct Growth")
 st.title("Mutual Fund Dashboard")
 st.subheader(portfolio["Name"])
 
 # ------------------------------Tab Creations-------------------------------------
 
-KPI_tab, Trend_tab, Risk_ratio_tab = st.tabs(["KPI","Trend", "Risk Ratios"])
+KPI_tab, Trend_tab, Risk_ratio_tab = st.tabs(["KPI", "Trend", "Risk Ratios"])
 
 # --------------------------------KPI Section Row 1-------------------------------------------------
 with KPI_tab:
@@ -79,13 +82,13 @@ with KPI_tab:
         cagr_column, xirr_column = st.columns(2)
         with cagr_column:
             st.metric(
-                label= "CAGR",
-                value= annualised_return
+                label="CAGR",
+                value=annualised_return
             )
         with xirr_column:
             st.metric(
                 label="XIRR",
-                value= portfolio['Absolute Return']
+                value=portfolio['Absolute Return']
             )
 # --------------------------------Line Chart Creation for nav history-------------------------------------------
 
@@ -145,13 +148,18 @@ with Risk_ratio_tab:
     st.subheader(f"Risk metrics based on {days()} daily return observations")
     ratio = st.container(border=True)
     with ratio:
-        standard_deviation, beta = st.columns(2)
-        with standard_deviation:
+        standard_deviation_block, beta_block = st.columns(2)
+        with standard_deviation_block:
             std = annualised_std()
             st.metric(
                 label="Annualised Volatility",
-                value= f"{std:.2%}",
-                delta_description= f"Volatility based on {days()} daily return observations"
+                value=f"{std:.2%}",
+                delta_description=f"Volatility based on {days()} daily return observations"
             )
-        with beta:
-            st.write("Beta Will be displayed here.")
+        with beta_block:
+            beta_value = beta()
+            st.metric(
+                label="Beta",
+                value=f"{beta_value:.2}",
+                delta_description="BenchMark is Nifty 50"
+            )
