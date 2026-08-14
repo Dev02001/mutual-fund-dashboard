@@ -1,11 +1,11 @@
 import numpy as np
 import pandas as pd
-from analytics.get_data import get_fund_details, nav_history, get_index_history
+from analytics.get_data import get_fund_details, nav_history, get_index_history, get_index_value
+from config.Rates import Risk_free_rate
 from decimal import Decimal, ROUND_HALF_UP
 
 
 # Following function will curate all the information and form a dictionary and send this curated data to dashboard.py
-
 
 def portfolio_summary(name):
     fund_details = get_fund_details(name)
@@ -57,8 +57,21 @@ def xirr():
 def cagr(market_value, invest_value, buy_date, current_date):
     year = (current_date - buy_date).days / 365.25
     CAGR = (market_value / invest_value) ** (Decimal(1) / Decimal(year)) - 1
-    CAGR = f"{CAGR:.2%}"
+
     return CAGR
+
+
+def benchmark_cagr():
+    oldest_date = get_index_value()["Date"][0]
+    latest_date = get_index_value()["Date"][1]
+    oldest_value = float(get_index_value()["Value"][0])
+    latest_value = float(get_index_value()["Value"][1])
+
+    years = (latest_date - oldest_date).days / 365.25
+    BenchMark_Cagr = (
+        ((latest_value/oldest_value)**(1/years))-1
+    )
+    return BenchMark_Cagr
 
 
 def portfolio_value_history(units):
@@ -180,3 +193,24 @@ def beta():
             (values["Fund_return"].cov(values["Benchmark_return"])) / values["Benchmark_return"].var()
     )
     return float(Beta)
+
+
+# Following function calculates Alpha
+def alpha():
+    name = "ICICI Prudential Dividend Yield Equity Mutual Fund Direct Growth"
+    fund_cagr = float(portfolio_summary(name)["CAGR"])
+    BenchMark_cagr = benchmark_cagr()
+    beta_value = beta()
+    risk_free_rate = Risk_free_rate
+
+    alpha_value = (
+            fund_cagr
+            - (
+                    risk_free_rate
+                    + beta_value * (BenchMark_cagr - risk_free_rate)
+            )
+    )
+    return alpha_value
+
+
+print(alpha())

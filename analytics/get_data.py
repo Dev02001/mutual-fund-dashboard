@@ -4,18 +4,29 @@ from ETL.load_mysql import (get_connected, connection_close)
 
 
 class Queries:
-    fund_detail = '''Select fund_name, sum(invest_amount), sum(bought_units),avg(invest_nav) from investment_transaction where 
+    fund_detail = '''
+    Select fund_name, sum(invest_amount), sum(bought_units),avg(invest_nav) 
+    from investment_transaction 
+    where 
     fund_name = %s '''
+
     invest_date = '''select buy_date from investment_transaction where fund_name = %s '''
 
     # Following query retrieves the latest NAV value from the nav_history table
     nav_value_query = '''SELECT nav_value, nav_date FROM nav_history ORDER BY nav_date DESC limit 1'''
 
-    # Following query reteieves nav history
+    # Following query retrieves nav history
     nav_history_query = '''select nav_date, nav_value from nav_history order by nav_date DESC'''
 
-    # Follwoing query retrieves index history
+    # Following query retrieves index history
     index_history_query = '''Select index_date, index_value from index_history order by index_date DESC'''
+
+    # Following query retrieves the oldest index value and date.
+    oldest_latest_index_value = '''
+    (Select index_date, index_value from index_history order by index_date ASC LIMIT 1) 
+    UNION ALL 
+    (Select index_date, index_value from index_history order by index_date DESC LIMIT 1)
+    '''
 
 
 class DbConnection:
@@ -90,5 +101,22 @@ def get_index_history():
     index_history = cursor.fetchall()
     if index_history is not None:
         return index_history
+    else:
+        return None
+
+
+# Following functions gives latest and oldest Index value needed for Index CAGR calculation.
+def get_index_value():
+    connection, cursor = get_connected()
+    cursor.execute(query.oldest_latest_index_value)
+    oldest_latest_value = cursor.fetchall()
+    if oldest_latest_value:
+        oldest_latest_value_df = pd.DataFrame(
+            oldest_latest_value,
+            columns=["Date", "Value"]
+        )
+        connection_close(connection, cursor)
+
+        return oldest_latest_value_df
     else:
         return None

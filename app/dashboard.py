@@ -9,7 +9,11 @@ if str(PROJECT_ROOT) not in sys.path:
 '''----------------------------------------------------------------------------------'''
 
 import streamlit as st
-from analytics.curate_data import portfolio_summary, portfolio_value_history, days, annualised_std, beta
+from analytics.curate_data import (
+    portfolio_summary, portfolio_value_history,
+    days,
+    annualised_std, beta, benchmark_cagr, alpha)
+
 from analytics.get_data import nav_history
 import pandas as pd
 import altair as alt
@@ -55,6 +59,7 @@ with KPI_tab:
             value=money(portfolio['Profit and loss']),
         )
     with absoluteReturn:
+
         st.metric(
             label="Absolute Return",
             value=f"{portfolio['Absolute Return']}"
@@ -83,7 +88,7 @@ with KPI_tab:
         with cagr_column:
             st.metric(
                 label="CAGR",
-                value=annualised_return
+                value=f"{annualised_return:.2%}"
             )
         with xirr_column:
             st.metric(
@@ -162,4 +167,18 @@ with Risk_ratio_tab:
                 label="Beta",
                 value=f"{beta_value:.2}",
                 delta_description="BenchMark is Nifty 50"
+            )
+        alpha_ratio, Benchmark_return = st.columns(2)
+        with alpha_ratio:
+            alpha_value = alpha()
+            st.metric(
+                label="Alpha",
+                value=f"{alpha_value:.2}",
+                delta_description="Risk-free-rate is 6%"
+            )
+        with Benchmark_return:
+            benchmark_return_value = benchmark_cagr()
+            st.metric(
+                label="Benchmark Return",
+                value=f"{benchmark_return_value:.2%}"
             )
