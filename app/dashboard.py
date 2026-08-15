@@ -10,7 +10,7 @@ if str(PROJECT_ROOT) not in sys.path:
 
 import streamlit as st
 from analytics.curate_data import (
-    portfolio_summary, portfolio_value_history,
+    portfolio_summary, portfolio_value_history, fund_benchmark_compare,
     days,
     annualised_std, beta, benchmark_cagr, alpha)
 
@@ -147,6 +147,65 @@ with Trend_tab:
     with Portfolio_amount_chart:
         st.subheader("Amount Trend")
         st.altair_chart(Plot, use_container_width=True)
+
+# -----------------------------------------Fund vs Nifty Growth Comparison chart-----------------------
+with Trend_tab:
+    normalised_nav = st.container()
+    with normalised_nav:
+        st.subheader("ICICI Prudential Dividend Yield Equity MF Vs Nifty 50")
+        data_value = fund_benchmark_compare()
+        min_value = float(data_value["Nav"].min())-50
+        max_value = float(data_value["Nav"].max())+50
+        chart1 = (
+            alt.Chart(fund_benchmark_compare())
+            .mark_line(color="blue")
+            .encode(
+                x="Date:T",
+                y=alt.Y(
+                    "Nav:Q",
+                    scale=alt.Scale(
+                        domain=[min_value, max_value]
+                    )
+
+                )
+            )
+        )
+        min_benchmark_value = float(data_value["Value"].min()) - 50
+        max_benchmark_value = float(data_value["Value"].max()) + 50
+        chart2 = (
+            alt.Chart(fund_benchmark_compare())
+            .mark_line(color="Red")
+            .encode(
+                x="Date:T",
+                y=alt.Y(
+                    "Value:Q",
+                    scale=alt.Scale(
+                        domain=[min_benchmark_value, max_benchmark_value]
+                    )
+
+                )
+            )
+        )
+        chart = (
+            alt.Chart(fund_benchmark_compare()).transform_fold(
+                ["Nav", "Value"], as_=["Metrics", "Amount"]
+            )
+            .mark_line()
+            .encode(
+                x="Date:T",
+                y=alt.Y(
+                    "Amount:Q",
+                    scale=alt.Scale(
+                        domain=[min_benchmark_value, max_benchmark_value]
+                    )
+                ),
+                color="Metric:N"
+            )
+        )
+        combined_chart = chart1 + chart2
+        st.altair_chart(combined_chart, use_container_width=True)
+        st.caption("Red: Nifty 50    Blue: Fund")
+
 
 # ----------------------------------------------Risk Ratio section-----------------------------------
 with Risk_ratio_tab:

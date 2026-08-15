@@ -213,4 +213,47 @@ def alpha():
     return alpha_value
 
 
-print(alpha())
+# Following function combines and normalise Benchmark and Fund vales for Fund vs Nifty Growth Comparison
+
+def fund_benchmark_compare():
+    fund_data = pd.DataFrame(
+        nav_history(),
+        columns=["Date", "Nav"]
+    )
+    benchmark_data = pd.DataFrame(
+        get_index_history(),
+        columns=["Date", "Value"]
+    )
+    combined_fund_benchmark = pd.merge(
+        fund_data,
+        benchmark_data,
+        on="Date",
+        how="inner",
+        sort="ascending"
+    )
+    start_nav = combined_fund_benchmark["Nav"][0]
+    start_benchmark_value = combined_fund_benchmark["Value"][0]
+    normalised_value = []
+
+    for i in range(len(combined_fund_benchmark)):
+
+        normalised_nav = (combined_fund_benchmark["Nav"][i]/start_nav)*100
+        normalised_benchmark = (combined_fund_benchmark["Value"][i]/start_benchmark_value)*100
+
+        normalised_value.append(
+            (combined_fund_benchmark["Date"][i],
+             float(normalised_nav),
+             float(normalised_benchmark)
+             )
+        )
+
+    normalised_value_df = pd.DataFrame(
+        normalised_value,
+        columns=["Date", "Nav", "Value"]
+    )
+    normalised_value_df["Date"] = pd.to_datetime(normalised_value_df["Date"])
+
+    return normalised_value_df
+
+
+print(fund_benchmark_compare())
