@@ -22,6 +22,16 @@ query_to_insert = '''
 
 check_query = '''Select * from index_history where index_date = %s'''
 
+check_nav_query = '''Select * from nav_history where nav_date = %s'''
+
+query_for_nav = '''
+    insert into nav_history(
+        nav_date,
+        nav_value
+    )
+    value (%s, %s)
+    '''
+
 # ---------------------------------Database connection-----------------------------------
 
 
@@ -47,8 +57,8 @@ def disconnect(connection, cursor):
 
 # -----------------------------Execution Part---------------------------
 
-index_data = pd.read_csv("../Data_sets/NIFTY_50_June_to_Feb.csv")
-
+nav_data = pd.read_csv("../Data_sets/Sep-oct-dataset.csv")
+index_data = pd.read_csv("../Data_sets/sep-oct-index-data.csv")
 
 def table_creation():
     connection, cursor = get_connected()
@@ -85,6 +95,34 @@ def insert_data(data):
     return insert_count
 
 
+def check_nav_data(data, cursor):
+    cursor.execute(check_nav_query, (data,))
+    value = cursor.fetchone()
+    return value is not None
+
+
+def insert_nav_data(data):
+    connection, cursor = get_connected()
+    data_to_insert = data[["Date", "NAV"]]
+    insert_count = 0
+    for i in range(len(data)):
+
+        date_value = data_to_insert["Date"].iloc[i]
+        close_value = data_to_insert["NAV"].iloc[i]
+
+        data_exist = check_nav_data(date_value, cursor)
+
+        if data_exist is False:
+            cursor.execute(query_for_nav, (date_value, close_value))
+            insert_count += 1
+
+
+    connection.commit()
+    disconnect(connection, cursor)
+    return insert_count
+
+
 #print(table_creation())
+#print(insert_nav_data(nav_data))
 print(insert_data(index_data))
 #print(len(index_data))
